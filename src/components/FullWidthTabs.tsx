@@ -13,6 +13,11 @@ import SprintDetails from "./SprintDetails";
 import FilterSearch from "./FilterSearch";
 import AddModalBodySquad from "./AddModalBodySquad";
 import MemberModalBody from "./MemberModalBody";
+import { RootState } from '../store';
+import { Squad, Member } from '../store/squad/types'
+import { addSquad, deleteSquad } from '../store/squad/action'
+import { connect } from 'react-redux'
+import { Dispatch } from 'redux';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -55,17 +60,66 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export default function FullWidthTabs() {
+interface IProps {
+  squads: Squad[],
+  onAddSquad: (data: Squad) => void;
+  onDeleteSquad: (id: string) => void;
+}
+
+const FullWidthTabs: React.FC<IProps> = ({ squads, onAddSquad, onDeleteSquad }) => {
   const classes = useStyles();
   const theme = useTheme();
   const [value, setValue] = React.useState(0);
+  const [squadName, setSquadName] = React.useState('')
+  const [memberName, setMemberName] = React.useState('')
+  const [members, setMembers] = React.useState<Member[] | []>([])
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue);
   };
 
-  const handleChangeIndex = (index: number) => {
-    setValue(index);
+  const handleSquadInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSquadName(event.target.value);
+  };
+
+  const handleMemberInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setMemberName(event.target.value);
+  };
+
+  const handleAddButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const mem = [...members]
+    mem.push({
+      memberId: `member~${+Date.now().toString()}`,
+      memberName: memberName
+    })
+    setMembers(mem);
+    setMemberName('');
+  };
+
+  const handleSaveButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (squadName === '') {
+      alert('Please enter sqaud name..')
+      return
+    }
+    if (members.length === 0) {
+      alert('Please enter member data')
+      return
+    }
+    const data = {
+      id: `squad~${+Date.now().toString()}`,
+      name: squadName,
+      members: members
+    }
+    onAddSquad(data);
+  };
+
+  const handleDeleteButtonClick = (event: React.MouseEvent<HTMLButtonElement>, id: string) => {
+    const mem = [...members]
+    setMembers(mem.filter(member => member.memberId !== id));
+  };
+
+  const handleDeleteSquadClick = (event: React.MouseEvent<HTMLButtonElement>, id: string) => {
+    onDeleteSquad(id);
   };
 
   return (
@@ -87,7 +141,7 @@ export default function FullWidthTabs() {
       <TabPanel value={value} index={0} dir={theme.direction}>
         <Grid container spacing={3}>
           <Grid item lg={6}>
-            <SquadDetails />
+            <SquadDetails squads={squads} onDeleteSquadClick={handleDeleteSquadClick} />
           </Grid>
           <Grid
             item
@@ -101,8 +155,15 @@ export default function FullWidthTabs() {
             <ModalSquadSprint
               lable="New Squad"
               size="medium"
-              body01={<AddModalBodySquad />}
-              body02={<MemberModalBody />}
+              body01={<AddModalBodySquad value={squadName} handleInputChange={handleSquadInputChange} />}
+              body02={<MemberModalBody
+                members={members}
+                value={memberName}
+                handleInputChange={handleMemberInputChange}
+                onAddButtonClick={handleAddButtonClick}
+                onSaveButtonClick={handleSaveButtonClick}
+                onDeleteButtonClick={handleDeleteButtonClick}
+              />}
             />
           </Grid>
         </Grid>
@@ -127,3 +188,17 @@ export default function FullWidthTabs() {
     </div>
   );
 }
+
+const mapStateToProps = (store: RootState) => {
+  return {
+    squads: store.squad.squads,
+  }
+}
+
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  onAddSquad: (data: Squad) => dispatch(addSquad(data)),
+  onDeleteSquad: (id: string) => dispatch(deleteSquad(id))
+})
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(FullWidthTabs)
