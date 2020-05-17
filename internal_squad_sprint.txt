@@ -1,0 +1,4 @@
+create-react-app internal_squad_sprint --typescript
+npm install @types/material-ui --save-dev
+npm install @material-ui/core
+npm install @material-ui/lab

@@ -1,26 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+// import MyClass from "./components/MyClass";
+import Tabs from "./components/FullWidthTabs";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import Container from "@material-ui/core/Container";
+import Grid from "@material-ui/core/Grid";
+import Box from "@material-ui/core/Box";
+
+class App extends React.Component {
+  render() {
+    return (
+      <div className="App">
+        <Container maxWidth="lg">
+          {/* <Grid container spacing={3}> */}
+          {/* <Grid item xs={12}> */}
+          <Tabs />
+          {/* </Grid> */}
+          {/* </Grid> */}
+        </Container>
+      </div>
+    );
+  }
 }
 
 export default App;
